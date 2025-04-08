@@ -31,3 +31,23 @@
 .MathJax {
   font-size: 115% !important;
 }
+
+/* Ensure math equations have proper spacing */
+.chat-message-ai .MathJax {
+  margin: 0.5rem 0;
+}
+
+/* Make inline math stand out slightly */
+.chat-message-ai span.math-inline {
+  background-color: #f9f9fb;
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+}
+
+/* Display math should have more prominence */
+.chat-message-ai div.math-display {
+  background-color: #f9f9fb;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  margin: 0.75rem 0;
+}

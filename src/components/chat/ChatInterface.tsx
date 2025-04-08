@@ -19,17 +19,25 @@ function formatMathContent(content: string): string {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
     script.async = true;
+    
+    // Add MathJax configuration
+    const configScript = document.createElement('script');
+    configScript.type = 'text/javascript';
+    configScript.text = `
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+          displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']],
+          processEscapes: true
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    `;
+    document.head.appendChild(configScript);
     document.head.appendChild(script);
   }
-  
-  // Process any existing MathJax after content update
-  setTimeout(() => {
-    // @ts-ignore - MathJax might not be recognized by TypeScript
-    if (window.MathJax) {
-      // @ts-ignore
-      window.MathJax.typeset?.();
-    }
-  }, 100);
   
   return formatted;
 }
@@ -46,7 +54,7 @@ export function ChatInterface() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   // Use the provided API key by default
-  const [apiKey, setApiKey] = useState<string>('aVCIlcx9OizyCeJq9p5ilpG25eoiqe5B');
+  const [apiKey] = useState<string>('aVCIlcx9OizyCeJq9p5ilpG25eoiqe5B');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +72,20 @@ export function ChatInterface() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Process MathJax whenever messages change
+  useEffect(() => {
+    // Short delay to ensure DOM is updated
+    const timer = setTimeout(() => {
+      // @ts-ignore - MathJax might not be recognized by TypeScript
+      if (window.MathJax && window.MathJax.typeset) {
+        // @ts-ignore
+        window.MathJax.typeset();
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +192,7 @@ export function ChatInterface() {
           </Button>
         </div>
         
-        {/* API key info - removed input field as requested */}
+        {/* API key info */}
         <p className="text-xs text-muted-foreground mt-1">
           Using Mistral API for responses
         </p>
