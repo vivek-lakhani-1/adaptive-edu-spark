@@ -20,7 +20,7 @@ export function Navbar() {
         {/* Logo and name */}
         <a href="/" className="flex items-center gap-2">
           <BookOpen className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl">EduSpark</span>
+          <span className="font-bold text-xl">AdaptiveTutor</span>
         </a>
 
         {/* Desktop navigation */}

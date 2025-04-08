@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
@@ -51,7 +50,7 @@ const Index = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Key Features</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              EduSpark constantly evolves to provide the best learning experience tailored just for you.
+              AdaptiveTutor constantly evolves to provide the best learning experience tailored just for you.
             </p>
           </div>
           
@@ -85,7 +84,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Continuous Improvement</h3>
               <p className="text-muted-foreground">
-                The more you use EduSpark, the better it gets at helping you learn effectively.
+                The more you use AdaptiveTutor, the better it gets at helping you learn effectively.
               </p>
             </div>
             
@@ -131,7 +130,7 @@ const Index = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">How It Works</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Getting started with EduSpark is easy and designed to make your learning journey seamless.
+              Getting started with AdaptiveTutor is easy and designed to make your learning journey seamless.
             </p>
           </div>
           
@@ -193,7 +192,7 @@ const Index = () => {
             Ready to Transform Your Learning Experience?
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of students who have accelerated their learning with EduSpark's adaptive AI technology.
+            Join thousands of students who have accelerated their learning with AdaptiveTutor's adaptive AI technology.
           </p>
           <Button size="lg" className="gap-2">
             Start Learning For Free <ChevronRight className="h-4 w-4" />
@@ -208,7 +207,7 @@ const Index = () => {
             <div className="mb-4 md:mb-0">
               <div className="flex items-center gap-2">
                 <Book className="h-5 w-5 text-primary" />
-                <span className="font-bold text-lg">EduSpark</span>
+                <span className="font-bold text-lg">AdaptiveTutor</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Personalized AI tutoring for everyone
@@ -227,7 +226,7 @@ const Index = () => {
             </div>
           </div>
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} EduSpark. All rights reserved.
+            &copy; {new Date().getFullYear()} AdaptiveTutor. All rights reserved.
           </div>
         </div>
       </footer>

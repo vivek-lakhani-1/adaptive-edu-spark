@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +15,21 @@ function formatMathContent(content: string): string {
   
   // Replace markdown bold syntax (**text**) with HTML bold tags
   formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  
+  // Ensure proper list formatting by adding proper HTML structure
+  // Process numbered lists
+  formatted = formatted.replace(/^(\d+\.)\s+(.+)$/gm, '<li>$2</li>');
+  formatted = formatted.replace(/(<li>.*<\/li>(\n|$))+/g, '<ol>$&</ol>');
+  
+  // Process bullet lists
+  formatted = formatted.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
+  formatted = formatted.replace(/(<li>.*<\/li>(\n|$))+/g, function(match) {
+    // Only wrap in <ul> if not already inside an <ol>
+    if (!/(<ol>.*<\/ol>)/.test(match)) {
+      return '<ul>' + match + '</ul>';
+    }
+    return match;
+  });
   
   // Add MathJax script if not already present
   if (!document.querySelector('script[src*="mathjax"]')) {

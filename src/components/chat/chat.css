@@ -65,3 +65,19 @@ button[aria-label="Scroll to bottom"] {
 button[aria-label="Scroll to bottom"]:hover {
   transform: translateY(-2px);
 }
+
+/* List formatting in messages */
+.chat-message-ai ol,
+.chat-message-ai ul {
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.chat-message-ai li {
+  margin-bottom: 0.5rem;
+}
+
+.chat-message-ai li > ul,
+.chat-message-ai li > ol {
+  margin-top: 0.5rem;
+}
