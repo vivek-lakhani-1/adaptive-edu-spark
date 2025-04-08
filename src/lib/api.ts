@@ -60,7 +60,7 @@ function mockResponse(messages: ChatMessage[]): ApiResponse {
   let response = "I don't have enough information to help with that yet.";
   
   if (lastUserMessage.toLowerCase().includes("math")) {
-    response = "I'd be happy to help with math! Could you tell me what specific topic you're studying? For example, algebra, calculus, statistics, or geometry?";
+    response = "I'd be happy to help with math! Here's an example of a properly formatted equation: $E = mc^2$. For more complex equations, we can use display math: $$\\int_{a}^{b} f(x)dx$$";
   } else if (lastUserMessage.toLowerCase().includes("history")) {
     response = "History is fascinating! Which period or event would you like to learn more about?";
   } else if (lastUserMessage.toLowerCase().includes("science")) {

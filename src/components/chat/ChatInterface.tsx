@@ -7,11 +7,31 @@ import { ChatMessage } from '@/types';
 import { generateResponse } from '@/lib/api';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { v4 as uuidv4 } from 'uuid';
+import './chat.css';
 
-// Format math content by replacing markdown-style headings with HTML
+// Format math content by replacing markdown-style headings with HTML and formatting LaTeX
 function formatMathContent(content: string): string {
   // Replace ### headings with bold text
-  return content.replace(/###\s+(.+)/g, '<h3 class="text-lg font-bold my-2">$1</h3>');
+  let formatted = content.replace(/###\s+(.+)/g, '<h3 class="text-lg font-bold my-2">$1</h3>');
+  
+  // Add MathJax script if not already present
+  if (!document.querySelector('script[src*="mathjax"]')) {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+    script.async = true;
+    document.head.appendChild(script);
+  }
+  
+  // Process any existing MathJax after content update
+  setTimeout(() => {
+    // @ts-ignore - MathJax might not be recognized by TypeScript
+    if (window.MathJax) {
+      // @ts-ignore
+      window.MathJax.typeset?.();
+    }
+  }, 100);
+  
+  return formatted;
 }
 
 export function ChatInterface() {
