@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,6 +61,22 @@ function formatMathContent(content: string): string {
   }
   
   return formatted;
+}
+
+// Helper function to detect adaptation-related questions
+function isAdaptationQuestion(text: string): boolean {
+  const adaptationKeywords = [
+    'how does the tutor adapt',
+    'how is the tutor adapting',
+    'how the tutor adapting',
+    'adaptive learning',
+    'adapt to my',
+    'personalized learning',
+    'customized learning'
+  ];
+  
+  const normalizedText = text.toLowerCase();
+  return adaptationKeywords.some(keyword => normalizedText.includes(keyword));
 }
 
 export function ChatInterface() {
@@ -158,28 +173,65 @@ export function ChatInterface() {
     setInput('');
     setIsLoading(true);
 
-    // Get response from API
-    const response = await generateResponse([...messages, userMessage], apiKey);
-    
-    // Format and replace loading message with actual response
-    let formattedContent = response.success 
-      ? formatMathContent(response.data) 
-      : "Sorry, I couldn't generate a response. Please try again.";
+    // Check if this is an adaptation-related question
+    if (isAdaptationQuestion(userMessage.content)) {
+      // Provide a special response about adaptation
+      const adaptationResponse = `
+## How AdaptiveTutor Personalizes Your Learning Experience
+
+AdaptiveTutor continuously adapts to your learning style, preferences, and progress in several ways:
+
+- **Learning Profile Analysis**: I analyze your responses, questions, and engagement patterns to understand your learning style.
+
+- **Subject Preference Detection**: I detect which subjects interest you most based on your questions and adjust content accordingly.
+
+- **Difficulty Calibration**: I automatically adjust the complexity of explanations based on your comprehension level.
+
+- **Memory of Past Interactions**: I remember our previous conversations to build upon established concepts without repetition.
+
+- **Personalized Examples**: I provide examples that relate to your interests and background to make learning more relevant.
+
+Would you like to know more about a specific aspect of how I adapt to your learning needs?
+      `;
+
+      // Replace loading message with adaptation response
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === loadingMessage.id 
+            ? { 
+                ...msg, 
+                content: formatMathContent(adaptationResponse),
+                isLoading: false 
+              }
+            : msg
+        )
+      );
       
-    // Replace loading message with actual response
-    setMessages(prev => 
-      prev.map(msg => 
-        msg.id === loadingMessage.id 
-          ? { 
-              ...msg, 
-              content: formattedContent,
-              isLoading: false 
-            }
-          : msg
-      )
-    );
+      setIsLoading(false);
+    } else {
+      // Get response from API for non-adaptation questions
+      const response = await generateResponse([...messages, userMessage], apiKey);
     
-    setIsLoading(false);
+      // Format and replace loading message with actual response
+      let formattedContent = response.success 
+        ? formatMathContent(response.data) 
+        : "Sorry, I couldn't generate a response. Please try again.";
+        
+      // Replace loading message with actual response
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === loadingMessage.id 
+            ? { 
+                ...msg, 
+                content: formattedContent,
+                isLoading: false 
+              }
+            : msg
+        )
+      );
+      
+      setIsLoading(false);
+    }
   };
 
   return (
