@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +11,12 @@ import './chat.css';
 
 // Format math content by replacing markdown-style headings with HTML and formatting LaTeX
 function formatMathContent(content: string): string {
-  // Replace ### headings with bold text
-  let formatted = content.replace(/###\s+(.+)/g, '<h3 class="text-lg font-bold my-2">$1</h3>');
+  // Replace markdown headings with HTML heading tags
+  // Handle ## level 2 headings
+  let formatted = content.replace(/##\s+(.+)$/gm, '<h2 class="text-xl font-bold my-2">$1</h2>');
+  
+  // Handle ### level 3 headings
+  formatted = formatted.replace(/###\s+(.+)$/gm, '<h3 class="text-lg font-bold my-2">$1</h3>');
   
   // Replace markdown bold syntax (**text**) with HTML bold tags
   formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -19,14 +24,14 @@ function formatMathContent(content: string): string {
   // Ensure proper list formatting by adding proper HTML structure
   // Process numbered lists
   formatted = formatted.replace(/^(\d+\.)\s+(.+)$/gm, '<li>$2</li>');
-  formatted = formatted.replace(/(<li>.*<\/li>(\n|$))+/g, '<ol>$&</ol>');
+  formatted = formatted.replace(/(<li>.*<\/li>(\n|$))+/g, '<ol class="list-decimal pl-6 my-2">$&</ol>');
   
   // Process bullet lists
   formatted = formatted.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
   formatted = formatted.replace(/(<li>.*<\/li>(\n|$))+/g, function(match) {
     // Only wrap in <ul> if not already inside an <ol>
     if (!/(<ol>.*<\/ol>)/.test(match)) {
-      return '<ul>' + match + '</ul>';
+      return '<ul class="list-disc pl-6 my-2">' + match + '</ul>';
     }
     return match;
   });
