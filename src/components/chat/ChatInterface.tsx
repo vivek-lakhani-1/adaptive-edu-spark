@@ -8,6 +8,12 @@ import { generateResponse } from '@/lib/api';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { v4 as uuidv4 } from 'uuid';
 
+// Format math content by replacing markdown-style headings with HTML
+function formatMathContent(content: string): string {
+  // Replace ### headings with bold text
+  return content.replace(/###\s+(.+)/g, '<h3 class="text-lg font-bold my-2">$1</h3>');
+}
+
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -19,7 +25,8 @@ export function ChatInterface() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState<string>('');
+  // Use the provided API key by default
+  const [apiKey, setApiKey] = useState<string>('aVCIlcx9OizyCeJq9p5ilpG25eoiqe5B');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -66,13 +73,18 @@ export function ChatInterface() {
     // Get response from API
     const response = await generateResponse([...messages, userMessage], apiKey);
     
+    // Format and replace loading message with actual response
+    let formattedContent = response.success 
+      ? formatMathContent(response.data) 
+      : "Sorry, I couldn't generate a response. Please try again.";
+      
     // Replace loading message with actual response
     setMessages(prev => 
       prev.map(msg => 
         msg.id === loadingMessage.id 
           ? { 
               ...msg, 
-              content: response.success ? response.data : "Sorry, I couldn't generate a response. Please try again.",
+              content: formattedContent,
               isLoading: false 
             }
           : msg
@@ -106,7 +118,9 @@ export function ChatInterface() {
                   <span>Thinking...</span>
                 </div>
               ) : message.sender === 'ai' ? (
-                <TypewriterText text={message.content} speed={10} />
+                <div dangerouslySetInnerHTML={{ 
+                  __html: message.content 
+                }} />
               ) : (
                 message.content
               )}
@@ -136,19 +150,10 @@ export function ChatInterface() {
           </Button>
         </div>
         
-        {/* API Key input */}
-        <div className="mt-2">
-          <Input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter your Mistral AI API key (optional)"
-            className="text-xs"
-          />
-          <p className="text-xs text-muted-foreground mt-1">
-            {apiKey ? "Using provided API key" : "No API key - using mock responses"}
-          </p>
-        </div>
+        {/* API key info - removed input field as requested */}
+        <p className="text-xs text-muted-foreground mt-1">
+          Using Mistral API for responses
+        </p>
       </form>
     </div>
   );
