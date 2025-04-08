@@ -56,3 +56,12 @@
 .chat-message-ai strong {
   font-weight: 600;
 }
+
+/* Scroll to bottom button hover effect */
+button[aria-label="Scroll to bottom"] {
+  transition: transform 0.2s ease-in-out;
+}
+
+button[aria-label="Scroll to bottom"]:hover {
+  transform: translateY(-2px);
+}

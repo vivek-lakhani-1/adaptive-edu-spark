@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, ArrowDown } from 'lucide-react';
 import { ChatMessage } from '@/types';
 import { generateResponse } from '@/lib/api';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -58,17 +58,41 @@ export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   // Use the provided API key by default
   const [apiKey] = useState<string>('aVCIlcx9OizyCeJq9p5ilpG25eoiqe5B');
+  const [showScrollButton, setShowScrollButton] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom of messages
+  // Manual scroll to bottom function
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Check if scroll button should be shown
+  const checkScrollPosition = () => {
+    if (!messagesContainerRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    // Show button if user has scrolled up and there's content below
+    const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+    setShowScrollButton(isScrolledUp);
+  };
+
+  // Set up scroll event listener
   useEffect(() => {
-    scrollToBottom();
+    const messagesContainer = messagesContainerRef.current;
+    if (messagesContainer) {
+      messagesContainer.addEventListener('scroll', checkScrollPosition);
+      return () => {
+        messagesContainer.removeEventListener('scroll', checkScrollPosition);
+      };
+    }
+  }, []);
+
+  // Check scroll position when new messages are added
+  useEffect(() => {
+    checkScrollPosition();
   }, [messages]);
 
   // Focus input on mount
@@ -148,7 +172,10 @@ export function ChatInterface() {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4 relative"
+      >
         {messages.map((message) => (
           <div
             key={message.id}
@@ -173,6 +200,17 @@ export function ChatInterface() {
           </div>
         ))}
         <div ref={messagesEndRef} />
+        
+        {/* Scroll to bottom button */}
+        {showScrollButton && (
+          <button
+            onClick={scrollToBottom}
+            className="absolute bottom-4 right-4 bg-primary text-primary-foreground rounded-full p-2 shadow-md hover:bg-primary/90 transition-all"
+            aria-label="Scroll to bottom"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Input area */}
