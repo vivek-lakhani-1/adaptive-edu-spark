@@ -118,7 +118,7 @@ export function ChatInterface() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (window.MathJax && window.MathJax.typeset) {
+      if (window.MathJax && typeof window.MathJax.typeset === 'function') {
         window.MathJax.typeset();
       }
     }, 100);
