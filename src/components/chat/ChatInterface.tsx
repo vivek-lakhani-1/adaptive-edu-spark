@@ -1,11 +1,17 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2, ArrowDown } from 'lucide-react';
-import { ChatMessage } from '@/types';
+import { Send, Loader2, ArrowDown, Sparkles } from 'lucide-react';
+import { ChatMessage, UserLearningProfile } from '@/types';
 import { generateResponse } from '@/lib/api';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { v4 as uuidv4 } from 'uuid';
+import { 
+  initializeLearningProfile,
+  updateLearningProfile,
+  adaptResponse
+} from '@/lib/adaptiveUtils';
 import './chat.css';
 
 // Format math content by replacing markdown-style headings with HTML and formatting LaTeX
@@ -90,9 +96,14 @@ export function ChatInterface() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // Use the provided API key by default
   const [apiKey] = useState<string>('aVCIlcx9OizyCeJq9p5ilpG25eoiqe5B');
   const [showScrollButton, setShowScrollButton] = useState(false);
+  // Add learning profile state
+  const [learningProfile, setLearningProfile] = useState<UserLearningProfile>(
+    initializeLearningProfile()
+  );
+  // State to track if adaptations are visible
+  const [showAdaptations, setShowAdaptations] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -173,9 +184,13 @@ export function ChatInterface() {
     setInput('');
     setIsLoading(true);
 
+    // Update learning profile based on user message
+    const updatedProfile = updateLearningProfile(userMessage.content, learningProfile);
+    setLearningProfile(updatedProfile);
+
     // Check if this is an adaptation-related question
     if (isAdaptationQuestion(userMessage.content)) {
-      // Provide a special response about adaptation
+      // Provide a special response about adaptation with current profile details
       const adaptationResponse = `
 ## How AdaptiveTutor Personalizes Your Learning Experience
 
@@ -190,6 +205,25 @@ AdaptiveTutor continuously adapts to your learning style, preferences, and progr
 - **Memory of Past Interactions**: I remember our previous conversations to build upon established concepts without repetition.
 
 - **Personalized Examples**: I provide examples that relate to your interests and background to make learning more relevant.
+
+### Your Current Learning Profile
+
+Based on our interactions, I've detected the following preferences:
+
+- **Learning Style**: ${updatedProfile.learningStyle !== "undefined" ? 
+  updatedProfile.learningStyle.charAt(0).toUpperCase() + updatedProfile.learningStyle.slice(1) :
+  "Not yet determined"} learner
+- **Complexity Preference**: ${
+  updatedProfile.complexityPreference === 1 ? "Basic" :
+  updatedProfile.complexityPreference === 2 ? "Simplified" :
+  updatedProfile.complexityPreference === 3 ? "Balanced" :
+  updatedProfile.complexityPreference === 4 ? "Advanced" : "Expert"
+}
+- **Response Format**: You seem to prefer ${updatedProfile.responseLength} explanations
+- **Subject Interests**: ${Object.entries(updatedProfile.subjectInterests)
+  .filter(([_, level]) => level > 5)
+  .map(([subject, _]) => subject.charAt(0).toUpperCase() + subject.slice(1))
+  .join(", ") || "Still learning about your interests"}
 
 Would you like to know more about a specific aspect of how I adapt to your learning needs?
       `;
@@ -212,23 +246,48 @@ Would you like to know more about a specific aspect of how I adapt to your learn
       // Get response from API for non-adaptation questions
       const response = await generateResponse([...messages, userMessage], apiKey);
     
-      // Format and replace loading message with actual response
-      let formattedContent = response.success 
-        ? formatMathContent(response.data) 
-        : "Sorry, I couldn't generate a response. Please try again.";
+      // If we have a successful response, adapt it based on user profile
+      if (response.success) {
+        const adaptedResponse = adaptResponse(response.data, updatedProfile);
         
-      // Replace loading message with actual response
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === loadingMessage.id 
-            ? { 
-                ...msg, 
-                content: formattedContent,
-                isLoading: false 
-              }
-            : msg
-        )
-      );
+        // Format and replace loading message with actual response
+        let formattedContent = formatMathContent(adaptedResponse.content);
+        
+        // Add adaptation info if there were adaptations applied and showAdaptations is true
+        if (showAdaptations && adaptedResponse.adaptationApplied.length > 0) {
+          formattedContent += `
+<div class="adaptation-info">
+  <p><small><em>Adapted to your learning profile: ${adaptedResponse.adaptationApplied.join(', ')}</em></small></p>
+</div>
+          `;
+        }
+        
+        // Replace loading message with actual response
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === loadingMessage.id 
+              ? { 
+                  ...msg, 
+                  content: formattedContent,
+                  isLoading: false 
+                }
+              : msg
+          )
+        );
+      } else {
+        // Handle error response
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === loadingMessage.id 
+              ? { 
+                  ...msg, 
+                  content: "Sorry, I couldn't generate a response. Please try again.",
+                  isLoading: false 
+                }
+              : msg
+          )
+        );
+      }
       
       setIsLoading(false);
     }
@@ -237,9 +296,21 @@ Would you like to know more about a specific aspect of how I adapt to your learn
   return (
     <div className="w-full h-[600px] flex flex-col chat-container">
       {/* Chat header */}
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">AI Tutor Chat</h2>
-        <p className="text-sm text-muted-foreground">Ask any question to get personalized help</p>
+      <div className="p-4 border-b flex justify-between items-center">
+        <div>
+          <h2 className="text-lg font-semibold">AI Tutor Chat</h2>
+          <p className="text-sm text-muted-foreground">Ask any question to get personalized help</p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={() => setShowAdaptations(!showAdaptations)}
+          title={showAdaptations ? "Hide adaptations" : "Show adaptations"}
+        >
+          <Sparkles className="h-4 w-4" />
+          {showAdaptations ? "Hide Adaptations" : "Show Adaptations"}
+        </Button>
       </div>
 
       {/* Messages area */}

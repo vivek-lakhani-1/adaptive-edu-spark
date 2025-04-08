@@ -81,3 +81,16 @@ button[aria-label="Scroll to bottom"]:hover {
 .chat-message-ai li > ol {
   margin-top: 0.5rem;
 }
+
+/* Adaptation info box styling */
+.adaptation-info {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  border-top: 1px dashed #ddd;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.adaptation-info p {
+  margin: 0;
+}
