@@ -14,6 +14,9 @@ function formatMathContent(content: string): string {
   // Replace ### headings with bold text
   let formatted = content.replace(/###\s+(.+)/g, '<h3 class="text-lg font-bold my-2">$1</h3>');
   
+  // Replace markdown bold syntax (**text**) with HTML bold tags
+  formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  
   // Add MathJax script if not already present
   if (!document.querySelector('script[src*="mathjax"]')) {
     const script = document.createElement('script');
