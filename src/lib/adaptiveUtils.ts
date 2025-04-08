@@ -28,7 +28,7 @@ export function initializeLearningProfile(): UserLearningProfile {
       technology: 5
     },
     complexityPreference: 3,
-    learningStyle: "undefined",
+    learningStyle: undefined,
     recentTopics: [],
     responseLength: "balanced"
   };
@@ -107,7 +107,7 @@ export function analyzeLearningStyle(
     
     if (dominantStyles.length > 0) {
       // If there's a tie, keep the previous style if it's among the dominant ones
-      if (dominantStyles.length > 1 && dominantStyles.includes(newProfile.learningStyle)) {
+      if (dominantStyles.length > 1 && newProfile.learningStyle && dominantStyles.includes(newProfile.learningStyle)) {
         // Keep current style
       } else {
         newProfile.learningStyle = dominantStyles[0] as "visual" | "verbal" | "interactive" | "analytical";
@@ -185,7 +185,7 @@ export function adaptResponse(
     adaptationsApplied.push("Detailed response format");
   }
   
-  // Apply learning style adaptation
+  // Apply learning style adaptation - only if a learning style is defined
   if (profile.learningStyle === "visual") {
     adaptedResponse = adaptedResponse.replace(
       /(?:For example|For instance)([^.$]*)/gi,

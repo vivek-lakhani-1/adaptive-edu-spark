@@ -39,7 +39,7 @@ export interface ApiResponse {
 export interface UserLearningProfile {
   subjectInterests: Record<string, number>; // Subject -> interest level (0-10)
   complexityPreference: number; // 1-5 scale (1: simple, 5: advanced)
-  learningStyle: "visual" | "verbal" | "interactive" | "analytical" | "undefined";
+  learningStyle: "visual" | "verbal" | "interactive" | "analytical" | undefined; // Changed "undefined" to actual undefined
   recentTopics: string[]; // Last 5 topics discussed
   responseLength: "concise" | "detailed" | "balanced"; // Preferred response length
   lastInteractionTime?: Date;

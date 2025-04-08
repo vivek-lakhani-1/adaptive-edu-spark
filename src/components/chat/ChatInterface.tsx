@@ -210,7 +210,7 @@ AdaptiveTutor continuously adapts to your learning style, preferences, and progr
 
 Based on our interactions, I've detected the following preferences:
 
-- **Learning Style**: ${updatedProfile.learningStyle !== "undefined" ? 
+- **Learning Style**: ${updatedProfile.learningStyle ? 
   updatedProfile.learningStyle.charAt(0).toUpperCase() + updatedProfile.learningStyle.slice(1) :
   "Not yet determined"} learner
 - **Complexity Preference**: ${
